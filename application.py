@@ -37,6 +37,8 @@ api.add_resource(resources.TokenRefresh, '/token/refresh')
 api.add_resource(resources.AllUsers, '/users')
 
 api.add_resource(resources.EventResource, '/event')
+api.add_resource(resources.ProfileResource, '/profile')
+
 
 if __name__ == "__main__":
   app.run(debug=config.DEBUG)

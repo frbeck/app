@@ -107,3 +107,35 @@ class EventModel(db.Model):
         "address": event.address
       }
     }
+
+
+class ProfileModel(db.Model):
+  __tablename__ = "profiles"
+  id = db.Column(db.Integer, primary_key = True)
+  name = db.Column(db.String(120), nullable=False)
+
+  def save_to_db(self):
+    print("here")
+    db.session.add(self)
+    db.session.commit()
+
+  @classmethod
+  def find_by_id(cls, ident):
+
+    if type(ident) != int:
+      return { "user": {} }
+
+    profile = cls.query.filter_by(id=ident).first()
+
+    if not profile:
+      return { "user": {} }
+
+    return {
+      "user": {
+        "id": profile.id,
+        "user_id": profile.user_id,
+        "description": profile.description,
+        "link": profile.link,
+        "address": profile.address
+      }
+    }

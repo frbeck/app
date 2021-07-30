@@ -7,7 +7,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_r
 
 # @jwt_refresh_token_required is now @jwt_required(refresh=True)
 # Renamed get_raw_jwt() to get_jwt()
-from models import UserModel, RevokedTokenModel, EventModel
+from models import UserModel, RevokedTokenModel, EventModel, ProfileModel
 
 login_parser = reqparse.RequestParser()
 login_parser.add_argument("username", help="This field cannot be blank", required=True)
@@ -94,7 +94,6 @@ class AllUsers(Resource):
 
 event_parser = reqparse.RequestParser()
 event_parser.add_argument("id", type=int, help="This field cannot be blank", required=True)
-
 new_event_parser = reqparse.RequestParser()
 new_event_parser.add_argument("description", help="This field cannot be blank", required=True)
 new_event_parser.add_argument("link", help="This field cannot be blank", required=False)
@@ -130,4 +129,48 @@ class EventResource(Resource):
       return { "message": "Success. User {} created event {}".format(curr_user.username, event.id) }
     except:
       return { "message": "Something went run." }, 500
+
+
+profile_parser = reqparse.RequestParser()
+profile_parser.add_argument("id", type=int, help="This field cannot be blank", required=True)
+new_profile_parser = reqparse.RequestParser()
+new_profile_parser.add_argument("name", help="This field cannot be blank", required=True)
+new_profile_parser.add_argument("bio", help="This field cannot be blank", required=False)
+new_profile_parser.add_argument("profile_pic", help="This field cannot be blank", required=False)
+
+
+class ProfileResource(Resource):
+  def get(self):
+    data = profile_parser.parse_args()
+
+    try:
+      ident = int(data["id"])
+      profile = ProfileModel.find_by_id(ident)
+      return profile
+    except:
+      return {"message": "Something went run."}, 500
+
+  @jwt_required()
+  def post(self):
+    data = new_profile_parser.parse_args()
+    username = get_jwt_identity()
+    curr_user = UserModel.find_by_username(username)
+    print(curr_user.username)
+    print(data)
+
+    try:
+      print(curr_user, data["name"],data["bio"], data["profile_pic"])
+      profile = ProfileModel(
+        user=curr_user,
+        name=data["name"],
+        bio=data["bio"],
+        profile_pic=data["profile_pic"]
+      )
+      print("here")
+
+      profile.save_to_db()
+
+      return {"message": "Success. User {} created event {}".format(curr_user.username, profile.id)}
+    except:
+      return {"message": "Something went run."}, 500
 
