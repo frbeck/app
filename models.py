@@ -111,13 +111,17 @@ class EventModel(db.Model):
 
 class ProfileModel(db.Model):
   __tablename__ = "profiles"
-  id = db.Column(db.Integer, primary_key = True)
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+  user = db.relationship('UserModel', backref=db.backref('profiles', lazy=True))
   name = db.Column(db.String(120), nullable=False)
 
   def save_to_db(self):
-    print("here")
+    print("here2")
     db.session.add(self)
+    print("here3")
     db.session.commit()
+    print("here4")
 
   @classmethod
   def find_by_id(cls, ident):
@@ -134,8 +138,6 @@ class ProfileModel(db.Model):
       "user": {
         "id": profile.id,
         "user_id": profile.user_id,
-        "description": profile.description,
-        "link": profile.link,
-        "address": profile.address
+        "name": profile.name
       }
     }

@@ -162,15 +162,13 @@ class ProfileResource(Resource):
       print(curr_user, data["name"],data["bio"], data["profile_pic"])
       profile = ProfileModel(
         user=curr_user,
-        name=data["name"],
-        bio=data["bio"],
-        profile_pic=data["profile_pic"]
+        name=data["name"]
       )
-      print("here")
+      print("here1")
 
       profile.save_to_db()
 
       return {"message": "Success. User {} created event {}".format(curr_user.username, profile.id)}
     except:
-      return {"message": "Something went run."}, 500
+      return {"message": "Something went, wrong."}, 500
 
