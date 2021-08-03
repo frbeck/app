@@ -18,7 +18,7 @@ class UserModel(db.Model):
   @staticmethod
   def generate_hash(password):
     return sha256.hash(password)
-  
+
   @staticmethod
   def verify_hash(password, hash):
     return sha256.verify(password, hash)
@@ -141,3 +141,47 @@ class ProfileModel(db.Model):
         "name": profile.name
       }
     }
+
+
+class BusinessProfileModel(db.Model):
+  __tablename__ = "businessProfiles"
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+  user = db.relationship('UserModel', backref=db.backref('businessProfiles', lazy=True))
+  name = db.Column(db.String(120), nullable=False)
+  description = db.Column(db.String(500), nullable=True)
+  location = db.Column(db.String(500), nullable=True)
+  link = db.Column(db.String(120), nullable=True)
+  phone = db.Column(db.String(120), nullable=True)
+
+
+  def save_to_db(self):
+    print("here2")
+    db.session.add(self)
+    print("here3")
+    db.session.commit()
+    print("here4")
+
+  @classmethod
+  def find_by_id(cls, ident):
+
+    if type(ident) != int:
+      return { "business": {} }
+
+    profile = cls.query.filter_by(id=ident).first()
+
+    if not profile:
+      return { "business": {} }
+
+    return {
+      "business": {
+        "id": profile.id,
+        "user_id": profile.user_id,
+        "name": profile.name,
+        "description": profile.description,
+        "location": profile.location,
+        "link": profile.link,
+        "phone": profile.phone
+      }
+    }
+

@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 import config
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -38,6 +40,8 @@ api.add_resource(resources.AllUsers, '/users')
 
 api.add_resource(resources.EventResource, '/event')
 api.add_resource(resources.ProfileResource, '/profile')
+api.add_resource(resources.BusinessProfileResource, '/business')
+
 
 
 if __name__ == "__main__":
