@@ -136,7 +136,6 @@ profile_parser.add_argument("id", type=int, help="This field cannot be blank", r
 new_profile_parser = reqparse.RequestParser()
 new_profile_parser.add_argument("name", help="This field cannot be blank", required=True)
 new_profile_parser.add_argument("bio", help="This field cannot be blank", required=False)
-new_profile_parser.add_argument("profile_pic", help="This field cannot be blank", required=False)
 
 
 class ProfileResource(Resource):
@@ -162,10 +161,9 @@ class ProfileResource(Resource):
       print(curr_user, data["name"], data["bio"], data["profile_pic"])
       profile = ProfileModel(
         user=curr_user,
-        name=data["name"]
+        name=data["name"],
+        bio=data["bio"]
       )
-      print("here1")
-
       profile.save_to_db()
 
       return {"message": "Success. User {} created profile {}".format(curr_user.username, profile.id)}
