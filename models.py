@@ -156,11 +156,8 @@ class BusinessProfileModel(db.Model):
 
 
   def save_to_db(self):
-    print("here2")
     db.session.add(self)
-    print("here3")
     db.session.commit()
-    print("here4")
 
   @classmethod
   def find_by_id(cls, ident):

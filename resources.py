@@ -107,7 +107,7 @@ class EventResource(Resource):
       event = EventModel.find_by_id(ident)
       return event
     except:
-      return { "message": "Something went run." }, 500
+      return { "message": "Something went wrong." }, 500
   
   @jwt_required()
   def post(self):
@@ -170,17 +170,17 @@ class ProfileResource(Resource):
 
       return {"message": "Success. User {} created profile {}".format(curr_user.username, profile.id)}
     except:
-      return {"message": "Something went, wrong."}, 500
+      return {"message": "Something went wrong."}, 500
 
 
 business_profile_parser = reqparse.RequestParser()
 business_profile_parser.add_argument("id", type=int, help="This field cannot be blank", required=True)
 new_business_profile_parser = reqparse.RequestParser()
 new_business_profile_parser.add_argument("name", help="This field cannot be blank", required=True)
-new_business_profile_parser.add_argument("description", help="This field cannot be blank", required=False)
-new_business_profile_parser.add_argument("location", help="This field cannot be blank", required=False)
-new_business_profile_parser.add_argument("link", help="This field cannot be blank", required=False)
-new_business_profile_parser.add_argument("phone", help="This field cannot be blank", required=False)
+new_business_profile_parser.add_argument("description", help="Must be a string", required=False)
+new_business_profile_parser.add_argument("location", help="Must be a string", required=False)
+new_business_profile_parser.add_argument("link", help="Must be a string", required=False)
+new_business_profile_parser.add_argument("phone", help="Must be a string", required=False)
 
 
 class BusinessProfileResource(Resource):
@@ -202,7 +202,6 @@ class BusinessProfileResource(Resource):
     print(curr_user.username)
 
     try:
-      print("here0")
       print(data)
 
       profile = BusinessProfileModel(
@@ -213,8 +212,6 @@ class BusinessProfileResource(Resource):
         link=data["link"],
         phone=data["phone"]
       )
-
-      print("here1")
 
       profile.save_to_db()
 
