@@ -139,19 +139,25 @@ class EventResource(Resource):
 
 
 profile_parser = reqparse.RequestParser()
-profile_parser.add_argument("id", type=int, help="This field cannot be blank", required=True)
+profile_parser.add_argument("username", type=str, help="This field cannot be blank", required=True)
 new_profile_parser = reqparse.RequestParser()
 new_profile_parser.add_argument("name", help="This field cannot be blank", required=True)
 new_profile_parser.add_argument("bio", help="This field cannot be blank", required=False)
+new_profile_parser.add_argument("picture", help="This field cannot be blank", required=False)
 
 
 class ProfileResource(Resource):
     def get(self):
         data = profile_parser.parse_args()
+        print('here1')
 
         try:
-            ident = int(data["id"])
-            profile = ProfileModel.find_by_id(ident)
+            print('here2')
+            ident = data["username"]
+            print('here3')
+
+            profile = ProfileModel.find_by_username(ident)
+            print(profile)
             return profile
         except:
             return {"message": "Something went run."}, 500
@@ -162,14 +168,14 @@ class ProfileResource(Resource):
         username = get_jwt_identity()
         curr_user = UserModel.find_by_username(username)
         print(curr_user.username)
-        print(data)
 
         try:
-            print(curr_user, data["name"], data["bio"], data["profile_pic"])
             profile = ProfileModel(
                 user=curr_user,
+                username=curr_user.username,
                 name=data["name"],
-                bio=data["bio"]
+                bio=data["bio"],
+                picture=data["picture"]
             )
             profile.save_to_db()
 
@@ -177,10 +183,18 @@ class ProfileResource(Resource):
         except:
             return {"message": "Something went wrong."}, 500
 
+    @jwt_required()
+    def patch(self):
+        data = profile_parser.parse_args()
+        ident = data["username"]
+        updated_profile = new_profile_parser.parse_args()
+        ProfileModel.update_row(ident, updated_profile)
+        return {"message": "Success"}
+
 
 business_profile_parser = reqparse.RequestParser()
 business_profile_parser.add_argument("id", type=int, help="This field cannot be blank", required=True)
-
+business_profile_parser.add_argument("verify", type=int, help="This field cannot be blank", required=False)
 new_business_profile_parser = reqparse.RequestParser()
 new_business_profile_parser.add_argument("name", help="This field cannot be blank", required=True)
 new_business_profile_parser.add_argument("description", help="Must be a string", required=False)
@@ -193,11 +207,13 @@ new_business_profile_parser.add_argument("picture", help="Must be a string", req
 
 class BusinessProfileResource(Resource):
     def get(self):
-        data = profile_parser.parse_args()
+        data = business_profile_parser.parse_args()
         try:
             ident = int(data["id"])
             if ident == 0:
                 profile = BusinessProfileModel.get_all()
+            elif ident == -1:
+                profile = BusinessProfileModel.get_all_unverified()
             else:
                 profile = BusinessProfileModel.find_by_id(ident)
             return profile
@@ -211,7 +227,6 @@ class BusinessProfileResource(Resource):
         curr_user = UserModel.find_by_username(username)
 
         try:
-
             profile = BusinessProfileModel(
                 user=curr_user,
                 name=data["name"],
@@ -220,7 +235,8 @@ class BusinessProfileResource(Resource):
                 link=data["link"],
                 phone=data["phone"],
                 tags=data["tags"],
-                picture=data["picture"]
+                picture=data["picture"],
+                verified=False
             )
 
             profile.save_to_db()
@@ -228,3 +244,15 @@ class BusinessProfileResource(Resource):
             return {"message": "Success. User {} created business profile {}".format(curr_user.username, profile.id)}
         except:
             return {"message": "Something went, wrong."}, 500
+
+    @jwt_required()
+    def patch(self):
+        username = get_jwt_identity()
+        curr_user = UserModel.find_by_username(username)
+        data = business_profile_parser.parse_args()
+        ident = int(data["id"])
+        if curr_user.username == 'fran' and data["verify"] is not None:
+            BusinessProfileModel.verify(ident, data["verify"])
+            return {"message": "Admin {} verified business profile {}".format(curr_user.username, ident)}
+
+
