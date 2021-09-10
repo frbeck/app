@@ -45,4 +45,4 @@ api.add_resource(resources.BusinessProfileResource, '/business')
 
 
 if __name__ == "__main__":
-  app.run(debug=config.DEBUG)
+  app.run(debug=config.DEBUG, host="0.0.0.0")

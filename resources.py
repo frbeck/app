@@ -227,6 +227,7 @@ class BusinessProfileResource(Resource):
         curr_user = UserModel.find_by_username(username)
 
         try:
+            # noinspection PyInterpreter
             profile = BusinessProfileModel(
                 user=curr_user,
                 name=data["name"],
